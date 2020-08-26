@@ -1,10 +1,12 @@
 import React, { useState, useCallback, useRef } from 'react';
 import './App.css';
 import produce from 'immer';
+import { Button, Switch } from '@material-ui/core';
 
 // SECTION Global Variables
-const numRows = 35;
-const numCols = 35;
+// FIXME Have the user pick the grid size?
+const numRows = 25;
+const numCols = 25;
 
 const operations = [
 	[1, 0],
@@ -68,7 +70,7 @@ function App() {
 
 	const [running, setRunning] = useState(false);
 	const [generation, setGeneration] = useState(0);
-
+	const [speed, setSpeed] = useState(1000);
 	// running/generation value changes but our runSim fnx does not
 	// keeps our running/generation value updated in our callback below
 	const runningRef = useRef(running);
@@ -79,6 +81,9 @@ function App() {
 
 	const gridRef = useRef(grid);
 	gridRef.current = grid;
+
+	const speedRef = useRef(speed);
+	speedRef.current = speed;
 
 	const runSimulation = useCallback(() => {
 		// base case
@@ -104,6 +109,12 @@ function App() {
 								neighbors += g[newI][newK];
 							}
 						});
+						// FIXME
+						/*
+						 * Does something well-documented with the edge of the grid. (e.g. wraparound to the far side--most fun!--or assumes all edge cells are permanently dead.)
+						 */
+
+						// if cell touch edge, they die
 
 						// Game Rules logic
 						if (neighbors < 2 || neighbors > 3) {
@@ -120,7 +131,7 @@ function App() {
 		});
 
 		// recursive call
-		setTimeout(runSimulation, 1000);
+		setTimeout(runSimulation, speedRef.current);
 
 		// track the generation of the cells if there are alive cells
 		if (checkIfEmptyGrid(gridRef.current) === false) {
@@ -130,7 +141,8 @@ function App() {
 
 	return (
 		<React.Fragment>
-			<button
+			<Button
+				variant='contained'
 				onClick={() => {
 					// toggle running
 					setRunning(!running);
@@ -143,8 +155,10 @@ function App() {
 				disabled={checkIfEmptyGrid(grid) ? true : false}
 			>
 				{running ? 'Stop Simulation' : 'Begin Simulation'}
-			</button>
-			<button
+			</Button>
+			<Button
+				variant='contained'
+				color='secondary'
 				onClick={() => {
 					setGrid(generateEmptyGrid);
 					// If the sim is running, reset will stop the sim and reset the grid
@@ -152,55 +166,104 @@ function App() {
 						setRunning(!running);
 					}
 					setGeneration(0);
+					setSpeed(1000);
 				}}
 			>
 				Reset
-			</button>
-			<button
+			</Button>
+			<Button
+				variant='contained'
+				color='primary'
 				onClick={() => {
 					setGrid(generateRandomGrid());
 				}}
 			>
 				Randomize
-			</button>
-			<div>Current Generation: {generation}</div>
-			<div
-				style={{
-					border: '1px solid black',
-					width: '56.1%',
+			</Button>
+			<Button
+				onClick={() => {
+					if (speed > 0) {
+						setSpeed(speed - 100);
+					}
 				}}
 			>
-				<div
-					style={{
-						display: 'grid',
-						gridTemplateColumns: `repeat(${numCols}, 20px)`,
-					}}
-				>
-					{grid.map((rows, i) =>
-						rows.map((col, k) => (
-							<div
-								key={`${i}-${k}`}
-								onClick={() => {
-									// generates an immutable change
-									const newGrid = produce(grid, (gridCopy) => {
-										// allows us to toggle alive and dead
-										gridCopy[i][k] = grid[i][k] ? 0 : 1;
-									});
+				Increase Speed <br />
+				<i class='fas fa-plus'></i>
+			</Button>
+			<Button
+				onClick={() => {
+					if (speed < 1000) {
+						setSpeed(speed + 100);
+					}
+				}}
+			>
+				Decrease Speed <br />
+				<i class='fas fa-minus'></i>
+			</Button>
+			<div>Current Generation: {generation}th</div>
+			<div>
+				Speed:
+				{(function () {
+					switch (speed) {
+						case 1000:
+							return 1;
+						case 900:
+							return 2;
+						case 800:
+							return 3;
+						case 700:
+							return 4;
+						case 600:
+							return 5;
+						case 500:
+							return 6;
+						case 400:
+							return 7;
+						case 300:
+							return 8;
+						case 200:
+							return 9;
+						case 100:
+							return 10;
+						case 0:
+							return 11;
+					}
+				})()}
+			</div>
+			<div
+				style={{
+					// FIXME Change width/border to be dynmaic to the size of the grid
+					display: 'grid',
+					gridTemplateColumns: `repeat(${numCols}, 20px)`,
+					// border: '1px solid black',
+					// width: '80.1%',
+				}}
+			>
+				{grid.map((rows, i) =>
+					rows.map((col, k) => (
+						<div
+							key={`${i}-${k}`}
+							onClick={() => {
+								// generates an immutable change
+								const newGrid = produce(grid, (gridCopy) => {
+									// allows us to toggle alive and dead
+									gridCopy[i][k] = grid[i][k] ? 0 : 1;
+								});
 
-									setGrid(newGrid);
-								}}
-								style={{
-									width: 20,
-									height: 20,
-									backgroundColor: grid[i][k] ? 'black' : undefined,
-									border: running ? 'none' : 'solid 1px black',
-									cursor: 'pointer',
-									pointerEvents: running ? 'none' : 'auto',
-								}}
-							></div>
-						))
-					)}
-				</div>
+								setGrid(newGrid);
+							}}
+							style={{
+								width: 20,
+								height: 20,
+								backgroundColor: grid[i][k] ? 'black' : undefined,
+								// border: running ? 'none' : 'solid 1px black',
+								border: 'solid 1px black',
+								cursor: 'pointer',
+								pointerEvents: running ? 'none' : 'auto',
+							}}
+						></div>
+					))
+				)}
 			</div>
 		</React.Fragment>
 	);
