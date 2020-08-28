@@ -10,7 +10,7 @@ import styled from 'styled-components';
 2. implement custom features
 	- speed control [x]
 	- grid randomization [x]
-	- sample cell configurations []
+	- sample cell configurations [x]
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -20,6 +20,7 @@ import styled from 'styled-components';
 // const numRows = 25;
 // const numCols = 25;
 
+// Possible Neighbors >> coordinate plane
 const operations = [
 	[1, 0],
 	[-1, 0],
@@ -52,7 +53,7 @@ const generateRandomGrid = (gridSize) => {
 	let numCols = gridSize;
 
 	for (let i = 0; i < numRows; i++) {
-		rows.push(Array.from(Array(numCols), () => (Math.random() > 0.8 ? 1 : 0)));
+		rows.push(Array.from(Array(numCols), () => (Math.random() > 0.5 ? 1 : 0)));
 	}
 
 	return rows;
@@ -81,6 +82,7 @@ const checkIfEmptyGrid = (grid) => {
 };
 
 // SECTION Preset Cell Configurations
+// FIXME Room for improvement
 const presetConfiguration1 = (gridSize) => {
 	const rows = [];
 	let numRows = gridSize;
@@ -122,21 +124,22 @@ const presetConfiguration2 = (gridSize) => {
 	}
 
 	let arr = [
-		[0, 1, 1, 1, 0, 0],
-		[0, 0, 0, 1, 1, 1],
-		[0, 0, 0, 0, 0, 0],
-		[1, 1, 1, 0, 1, 1],
-		[0, 1, 0, 1, 0, 1],
-		[0, 0, 1, 1, 1, 0],
+		[1, 0, 0, 1, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, 0],
+		[0, 0, 1, 1, 0, 0, 0],
+		[1, 1, 1, 1, 1, 1, 1],
+		[0, 0, 0, 1, 1, 0, 0],
+		[0, 0, 0, 1, 0, 1, 0],
+		[0, 0, 0, 1, 0, 0, 1],
 	];
 
 	for (let i = 0; i < rows.length; i++) {
-		if (i < 6) {
+		if (i < 7) {
 			Array.prototype.splice.apply(rows[i], [0, arr[i].length].concat(arr[i]));
 			Array.prototype.splice.apply(rows[i], [11, arr[i].length].concat(arr[i]));
 			Array.prototype.splice.apply(rows[i], [22, arr[i].length].concat(arr[i]));
 			Array.prototype.splice.apply(rows[i], [33, arr[i].length].concat(arr[i]));
-			Array.prototype.splice.apply(rows[i], [44, arr[i].length].concat(arr[i]));
+			// Array.prototype.splice.apply(rows[i], [44, arr[i].length].concat(arr[i]));
 		}
 	}
 
@@ -153,22 +156,31 @@ const presetConfiguration3 = (gridSize) => {
 	}
 
 	let arr = [
-		[0, 0, 1, 1, 0, 0],
-		[0, 0, 0, 1, 1, 0],
-		[1, 0, 0, 1, 0, 1],
-		[1, 1, 1, 0, 1, 1],
-		[0, 1, 0, 1, 0, 1],
-		[0, 0, 1, 1, 1, 0],
+		[0, 0, 0, 1, 0, 0, 0],
+		[0, 0, 0, 1, 0, 0, 0],
+		[0, 0, 0, 1, 0, 0, 0],
+		[1, 1, 1, 1, 1, 1, 1],
+		[0, 0, 0, 1, 0, 0, 0],
+		[0, 0, 0, 1, 0, 0, 0],
+		[0, 0, 0, 1, 0, 0, 0],
 	];
 
 	for (let i = 0; i < rows.length; i++) {
-		if (i < 6) {
+		if (i < 7) {
 			Array.prototype.splice.apply(rows[i], [0, arr[i].length].concat(arr[i]));
 			Array.prototype.splice.apply(rows[i], [11, arr[i].length].concat(arr[i]));
 			Array.prototype.splice.apply(rows[i], [22, arr[i].length].concat(arr[i]));
 			Array.prototype.splice.apply(rows[i], [33, arr[i].length].concat(arr[i]));
-			Array.prototype.splice.apply(rows[i], [44, arr[i].length].concat(arr[i]));
+			// Array.prototype.splice.apply(rows[i], [44, arr[i].length].concat(arr[i]));
 		}
+		console.log('rows', rows);
+		// if (i > 6 && i < 13) {
+		// 	Array.prototype.splice.apply(rows[i], [0, arr[i].length].concat(arr[i]));
+		// 	// 	Array.prototype.splice.apply(rows[i], [11, arr[i].length].concat(arr[i]));
+		// 	// 	Array.prototype.splice.apply(rows[i], [22, arr[i].length].concat(arr[i]));
+		// 	// 	Array.prototype.splice.apply(rows[i], [33, arr[i].length].concat(arr[i]));
+		// 	// 	// Array.prototype.splice.apply(rows[i], [44, arr[i].length].concat(arr[i]));
+		// }
 	}
 
 	return rows;
@@ -230,7 +242,7 @@ function App() {
 		return generateEmptyGrid(gridSize);
 	});
 
-	console.log(grid, gridSize);
+	// console.log(grid, gridSize);
 
 	const [running, setRunning] = useState(false);
 	const [generation, setGeneration] = useState(0);
@@ -279,9 +291,10 @@ function App() {
 							// increment neighbors based off these bounds
 							if (newI >= 0 && newI < numRows && newK >= 0 && newK < numCols) {
 								neighbors += g[newI][newK];
+								// console.log(g[newI][newK]);
 							}
 						});
-						// FIXME
+						// TODO
 						/*
 						 * Does something well-documented with the edge of the grid. (e.g. wraparound to the far side--most fun!--or assumes all edge cells are permanently dead.)
 						 */
@@ -311,6 +324,7 @@ function App() {
 		}
 	}, []);
 
+	// FIXME
 	// used for user grid selection. handles changes from the select in game control
 	const handleGridChanges = (e) => {
 		// console.log(e.target.value);
